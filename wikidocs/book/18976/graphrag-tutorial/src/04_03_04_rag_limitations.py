@@ -1,32 +1,25 @@
-import sys
-import os
-from pathlib import Path
-from dotenv import load_dotenv
-from langchain_openai import ChatOpenAI, OpenAIEmbeddings
-from langchain_core.vectorstores import InMemoryVectorStore
-from langchain_text_splitters import RecursiveCharacterTextSplitter
-from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
+from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.runnables import RunnablePassthrough
+from langchain_core.vectorstores import InMemoryVectorStore
+from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(PROJECT_ROOT))
+from util import (
+    default_embedding_model,
+    default_llm_model,
+    ensure_project_root_on_path,
+    format_docs,
+    split_texts,
+)
+
+ensure_project_root_on_path()
+
 from data.documents import DOCUMENTS
-load_dotenv(PROJECT_ROOT / ".env")
-
-def require_env(key: str) -> str:
-    val = os.getenv(key)
-    if not val:
-        raise RuntimeError("env not loaded. check .env")
-    return val
 
 # RAG 시스템 구축 (위와 동일)
-text_splitter = RecursiveCharacterTextSplitter(chunk_size=150, chunk_overlap=30)
-chunks = []
-for doc in DOCUMENTS:
-    chunks.extend(text_splitter.split_text(doc))
+chunks = split_texts(DOCUMENTS, chunk_size=150, chunk_overlap=30)
 
-embeddings = OpenAIEmbeddings(model=require_env("OPENAI_DEFAULT_EMBEDDING_MODEL"))
+embeddings = OpenAIEmbeddings(model=default_embedding_model())
 vector_store = InMemoryVectorStore(embeddings)
 vector_store.add_texts(chunks)
 retriever = vector_store.as_retriever(search_kwargs={"k": 3})
@@ -41,10 +34,7 @@ template = """컨텍스트를 바탕으로 질문에 답하세요.
 답변:"""
 
 prompt = ChatPromptTemplate.from_template(template)
-llm = ChatOpenAI(model=require_env("OPENAI_DEFAULT_LLM_MODEL"), temperature=0)
-
-def format_docs(docs):
-    return "\n\n".join(doc.page_content for doc in docs)
+llm = ChatOpenAI(model=default_llm_model(), temperature=0)
 
 rag_chain = (
     {"context": retriever | format_docs, "question": RunnablePassthrough()}

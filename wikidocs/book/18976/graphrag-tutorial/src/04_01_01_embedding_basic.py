@@ -1,14 +1,9 @@
-from pathlib import Path
-
-from dotenv import load_dotenv
 from langchain_openai import OpenAIEmbeddings
 
-# 환경 변수 로드
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-load_dotenv(PROJECT_ROOT / ".env")
+from util import default_embedding_model
 
 # 임베딩 모델 초기화
-embeddings = OpenAIEmbeddings(model="text-embedding-3-small")
+embeddings = OpenAIEmbeddings(model=default_embedding_model())
 
 # 텍스트를 임베딩으로 변환
 text = "오늘 날씨가 정말 좋습니다."

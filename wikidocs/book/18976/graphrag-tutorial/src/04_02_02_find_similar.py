@@ -1,18 +1,8 @@
-from pathlib import Path
-
-import numpy as np
-from dotenv import load_dotenv
 from langchain_openai import OpenAIEmbeddings
 
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-load_dotenv(PROJECT_ROOT / ".env")
+from util import cosine_similarity, default_embedding_model
 
-def cosine_similarity(vec1, vec2):
-    vec1 = np.array(vec1)
-    vec2 = np.array(vec2)
-    return np.dot(vec1, vec2) / (np.linalg.norm(vec1) * np.linalg.norm(vec2))
-
-embeddings = OpenAIEmbeddings(model="text-embedding-3-small")
+embeddings = OpenAIEmbeddings(model=default_embedding_model())
 
 # 문서 데이터베이스 (실제로는 파일이나 DB에서 로드)
 documents = [
@@ -46,7 +36,7 @@ def search(query, top_k=3):
     for idx, sim in similarities[:top_k]:
         results.append({
             "document": documents[idx],
-            "similarity": sim
+            "similarity": sim,
         })
     return results
 

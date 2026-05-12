@@ -1,47 +1,23 @@
-import os
 from collections.abc import Callable
-from pathlib import Path
 
-from dotenv import load_dotenv
 from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 from neo4j import GraphDatabase
 
-
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-load_dotenv(PROJECT_ROOT / ".env")
+from util import Neo4jConfig, default_embedding_model, default_llm_model, get_neo4j_config
 
 
-def require_env(name: str) -> str:
-    value = os.getenv(name)
-    if not value:
-        raise RuntimeError(f"{name} is missing. Add it to .env or your shell environment.")
-    return value
-
-
-def get_neo4j_config() -> dict[str, str]:
-    return {
-        "uri": os.getenv("NEO4J_URI", "bolt://localhost:7687"),
-        "username": os.getenv("NEO4J_USERNAME", "neo4j"),
-        "password": require_env("NEO4J_PASSWORD"),
-        "database": os.getenv("NEO4J_DATABASE", "tutorial-db"),
-    }
-
-
-def test_neo4j_connection(config: dict[str, str]) -> None:
+def test_neo4j_connection(config: Neo4jConfig) -> None:
     print("\n1️⃣ Neo4j 연결 테스트...")
 
-    driver = GraphDatabase.driver(
-        config["uri"],
-        auth=(config["username"], config["password"]),
-    )
+    driver = GraphDatabase.driver(config.uri, auth=config.auth)
 
     try:
         driver.verify_connectivity()
-        with driver.session(database=config["database"]) as session:
+        with driver.session(database=config.database) as session:
             result = session.run("RETURN 'Hello from Neo4j!' AS message")
             record = result.single()
             message = record["message"] if record else "(no response)"
-        print(f"   ✅ Neo4j 연결 성공! database={config['database']}")
+        print(f"   ✅ Neo4j 연결 성공! database={config.database}")
         print(f"   📝 응답: {message}")
     finally:
         driver.close()
@@ -49,8 +25,7 @@ def test_neo4j_connection(config: dict[str, str]) -> None:
 
 def test_openai_llm() -> None:
     print("\n2️⃣ OpenAI LLM 테스트...")
-    model = require_env("OPENAI_DEFAULT_LLM_MODEL")
-    llm = ChatOpenAI(model=model, temperature=0)
+    llm = ChatOpenAI(model=default_llm_model(), temperature=0)
     response = llm.invoke("1+1=?")
     print(f"   ✅ LLM 응답: {response.content}")
 
@@ -58,21 +33,21 @@ def test_openai_llm() -> None:
 def test_openai_embeddings() -> None:
     print("\n3️⃣ OpenAI Embeddings 테스트...")
 
-    embeddings = OpenAIEmbeddings(model="text-embedding-3-small")
+    embeddings = OpenAIEmbeddings(model=default_embedding_model())
     vector = embeddings.embed_query("테스트")
     print(f"   ✅ 임베딩 생성 성공! (차원: {len(vector)})")
 
 
-def test_langchain_neo4j(config: dict[str, str]) -> None:
+def test_langchain_neo4j(config: Neo4jConfig) -> None:
     print("\n4️⃣ LangChain-Neo4j 통합 테스트...")
 
     from langchain_neo4j import Neo4jGraph
 
     graph = Neo4jGraph(
-        url=config["uri"],
-        username=config["username"],
-        password=config["password"],
-        database=config["database"],
+        url=config.uri,
+        username=config.username,
+        password=config.password,
+        database=config.database,
     )
 
     schema = graph.get_schema

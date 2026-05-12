@@ -1,30 +1,19 @@
-from dotenv import load_dotenv
-from langchain_openai import OpenAIEmbeddings
 from langchain_core.vectorstores import InMemoryVectorStore
-from langchain_text_splitters import RecursiveCharacterTextSplitter
+from langchain_openai import OpenAIEmbeddings
 
-import sys
-from pathlib import Path
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(PROJECT_ROOT))
+from util import default_embedding_model, ensure_project_root_on_path, split_texts
+
+ensure_project_root_on_path()
+
 from data.documents import DOCUMENTS
 
-load_dotenv(PROJECT_ROOT / ".env")
-
 # 1. 문서 분할
-text_splitter = RecursiveCharacterTextSplitter(
-    chunk_size=150,
-    chunk_overlap=30,
-)
-
-chunks = []
-for doc in DOCUMENTS:
-    chunks.extend(text_splitter.split_text(doc))
+chunks = split_texts(DOCUMENTS, chunk_size=150, chunk_overlap=30)
 
 print(f"총 {len(chunks)}개 청크 생성")
 
 # 2. 벡터 저장소 생성 및 문서 추가
-embeddings = OpenAIEmbeddings(model="text-embedding-3-small")
+embeddings = OpenAIEmbeddings(model=default_embedding_model())
 vector_store = InMemoryVectorStore(embeddings)
 vector_store.add_texts(chunks)
 

@@ -1,14 +1,10 @@
-from pathlib import Path
-
-from dotenv import load_dotenv
-from langchain_openai import OpenAIEmbeddings
 from langchain_core.vectorstores import InMemoryVectorStore
+from langchain_openai import OpenAIEmbeddings
 
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-load_dotenv(PROJECT_ROOT / ".env")
+from util import default_embedding_model
 
 # 임베딩 모델
-embeddings = OpenAIEmbeddings(model="text-embedding-3-small")
+embeddings = OpenAIEmbeddings(model=default_embedding_model())
 
 # 벡터 저장소 생성
 vector_store = InMemoryVectorStore(embeddings)

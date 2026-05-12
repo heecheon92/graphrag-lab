@@ -1,27 +1,16 @@
-from pathlib import Path
-
-import numpy as np
-from dotenv import load_dotenv
 from langchain_openai import OpenAIEmbeddings
 
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-load_dotenv(PROJECT_ROOT / ".env")
-
-def cosine_similarity(vec1, vec2):
-    """두 벡터의 코사인 유사도 계산"""
-    vec1 = np.array(vec1)
-    vec2 = np.array(vec2)
-    return np.dot(vec1, vec2) / (np.linalg.norm(vec1) * np.linalg.norm(vec2))
+from util import cosine_similarity, default_embedding_model
 
 # 임베딩 모델 초기화
-embeddings = OpenAIEmbeddings(model="text-embedding-3-small")
+embeddings = OpenAIEmbeddings(model=default_embedding_model())
 
 # 테스트 문장들
 sentences = [
     "오늘 날씨가 정말 좋습니다.",      # 기준 문장
     "화창한 하늘이 아름답네요.",        # 비슷한 의미
     "파이썬 프로그래밍을 배웁니다.",    # 다른 주제
-    "비가 많이 내립니다."              # 날씨 관련, 다른 내용
+    "비가 많이 내립니다.",             # 날씨 관련, 다른 내용
 ]
 
 # 모든 문장 임베딩
