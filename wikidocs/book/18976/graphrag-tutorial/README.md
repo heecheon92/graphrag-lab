@@ -114,6 +114,20 @@ Chapter 6은 스키마 설계와 세종대왕 중심 지식 그래프 수동 구
 | `cypher/06_02_manual_knowledge_graph.cypher` | 수동 그래프 구축, 검증, 질문 응답 Cypher |
 | `src/06_02_01_build_sejong_graph.py` | LangChain `Neo4jGraph`로 Chapter 6 그래프 구축 |
 
+## Chapter 07: GraphRAG 파이프라인 기초
+
+Chapter 7은 벡터 검색, Neo4j 지식 그래프, Retriever 전략을 결합해 GraphRAG 검색 흐름을 구성합니다.
+원문에는 Python 예제가 포함되어 있지만, 이번 Chapter 7 정리는 프로젝트 지침에 따라 `docs/`, `cypher/`, `README.md`만 업데이트했습니다.
+
+| 파일 | 역할 |
+| --- | --- |
+| `docs/07_00_graphrag_pipeline_basics.md` | Chapter 7 전체 개요, 헷갈리는 개념 구분, 복습 카드 |
+| `docs/07_01_graphrag_architecture.md` | GraphRAG 아키텍처, 인덱싱/검색 단계, Retriever 종류 정리 |
+| `docs/07_02_vector_index.md` | Neo4j 벡터 인덱스 개념, 차원/유사도/검색 흐름, Python 구현 메모 |
+| `cypher/07_02_vector_index.cypher` | 4차원 장난감 벡터로 벡터 인덱스 생성과 검색을 연습하는 Cypher |
+| `docs/07_03_graph_vector_retrieval.md` | VectorCypher/Hybrid Retriever, RRF, 컨텍스트 확장 패턴 정리 |
+| `cypher/07_03_graph_vector_retrieval.cypher` | 벡터 검색 결과를 `MENTIONS` 관계와 엔티티 주변 관계로 확장하는 Cypher |
+
 ## 주의사항
 
 - `03_test_neo4j_data.py`는 Neo4j 데이터베이스에 실제 노드와 관계를 생성합니다.
@@ -123,6 +137,9 @@ Chapter 6은 스키마 설계와 세종대왕 중심 지식 그래프 수동 구
 - `src/05_04_02_neo4j_query.py`, `src/05_04_04_build_korean_history_graph.py`는 Neo4j 데이터베이스에 데이터를 씁니다.
 - `cypher/06_01_schema_design.cypher`는 Neo4j 제약조건을 생성할 수 있습니다.
 - `cypher/06_02_manual_knowledge_graph.cypher`, `src/06_02_01_build_sejong_graph.py`는 Neo4j 데이터베이스에 Chapter 6 연습 그래프를 씁니다.
+- `cypher/07_02_vector_index.cypher`는 `PracticeChapter07Vector` 라벨과 `practice_ch07_chunk_embeddings` 인덱스를 생성/삭제합니다.
+- `cypher/07_03_graph_vector_retrieval.cypher`는 `PracticeChapter07GraphVector` 라벨과 Chapter 7 연습용 벡터/전문 검색 인덱스를 생성/삭제합니다.
+- Chapter 7 Cypher 예제는 Browser 실행용 4차원 장난감 벡터를 사용합니다. 실제 OpenAI 임베딩과 섞지 마세요.
 - 스크립트를 `src/` 안에서 직접 실행해도 `.env`는 프로젝트 루트의 파일을 읽도록 구성되어 있습니다.
 
 ## 권장 학습 순서
@@ -136,3 +153,5 @@ Chapter 6은 스키마 설계와 세종대왕 중심 지식 그래프 수동 구
 7. `docs/05_00_neo4j_cypher_basics.md`부터 Chapter 5 노트를 읽고, `cypher/05_*.cypher`를 Neo4j Browser에서 실행합니다.
 8. `src/05_04_*.py`로 Python과 LangChain에서 Neo4j를 사용하는 흐름을 확인합니다.
 9. `docs/06_00_first_knowledge_graph.md`부터 Chapter 6 노트를 읽고, `cypher/06_*.cypher` 또는 `src/06_02_01_build_sejong_graph.py`로 첫 지식 그래프를 구축합니다.
+10. `docs/07_00_graphrag_pipeline_basics.md`와 `docs/07_01_graphrag_architecture.md`로 GraphRAG 전체 구조를 복습합니다.
+11. `cypher/07_02_vector_index.cypher`로 벡터 인덱스 검색을, `cypher/07_03_graph_vector_retrieval.cypher`로 그래프 확장 검색을 Neo4j Browser에서 확인합니다.
